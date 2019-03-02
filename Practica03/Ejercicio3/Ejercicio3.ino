@@ -1,10 +1,12 @@
-int Mot1 = 3;
-int Mot1_n = 5;
-int Mot2 = 10;
-int Mot2_n = 11;
-int pwmPin = 9;
+int Mot1 = 4;
+int Mot1_n = 2;
+int Mot2 = 12;
+int Mot2_n = 13;
+int pwmPin1 = 9;
+int pwmPin2 = 10;
+int pwm = 0;
 
-String opt;
+String opt = "";
 
 void setup() {
   Serial.begin(9600);
@@ -16,33 +18,47 @@ void setup() {
 }
 
 void loop() {
-  int motor1[] = {Mot1, Mot1_n};
-  int motor2[] = {Mot2, Mot2_n};
+  int motor1[] = {Mot1, Mot1_n, pwmPin1};
+  int motor2[] = {Mot2, Mot2_n, pwmPin2};
   
   if(Serial.available() > 0){
     Serial.println("####################");
     opt = Serial.readString();
+    Serial.println(opt);
+    //Serial.println(optParser(opt));
+    //Serial.println(pwm);
   }
 
   switch(optParser(opt)){
       case 1:
         turnLeft(motor1);
+        motorControl(motor1, 255);
         break;
       case 2:
         turnRight(motor1);
+        motorControl(motor1, 255);
         break;
       case 3:
         turnLeft(motor2);
+        motorControl(motor2, 255);
         break;
       case 4:
         turnRight(motor2);
+        motorControl(motor2, 255);
         break;
       case 5:
         turnOff(motor1);
+        motorControl(motor1, 0);
         break;
       case 6:
         turnOff(motor2);
+        motorControl(motor2, 0);
         break;
+      case 7:
+        motorControl(motor1, velControl(motor1));
+        break;
+      case 8:
+        motorControl(motor2, velControl(motor2));
       //default:
         //Serial.println("Ingrese una opción");
   }
@@ -50,18 +66,11 @@ void loop() {
 }
 
 void turnLeft(int *motor){
-  Serial.println("Girando hacia la izquierda");
-  Serial.println(motor[0]);
-  Serial.println(motor[1]);
-  //analogWrite(motor[0], 0);
-  //delay(50);
   digitalWrite(motor[0], HIGH);
   digitalWrite(motor[1], LOW);
 }
 
 void turnRight(int *motor){
-  //analogWrite(motor[1], 0);
-  //delay(50);
   digitalWrite(motor[0], LOW);
   digitalWrite(motor[1], HIGH);
 }
@@ -71,32 +80,66 @@ void turnOff(int *motor){
   digitalWrite(motor[1], LOW);
 }
 
-void velControl(int pwm){
-  
+void motorControl(int *motor, int vel){
+  analogWrite(motor[2], vel);
 }
+
+
+int velControl(int *motor){
+  int vel;
+  if(pwm < 127){                                      //Recibe el valor de pwm enviado por el usuario y lo convierte en un valor de velocidad de 0 a 255 junto con la dirección
+    vel = map(pwm, 0, 126, 0, 255);
+    turnRight(motor);
+  }
+  else{
+    if(pwm > 127){
+      vel = map(pwm, 128, 255, 0, 255);
+      turnLeft(motor);
+    }
+    else{
+      turnOff(motor);
+      vel = 0;
+    }
+  }
+
+  return(vel);
+}
+
+
+
+
+/*
+ * ESTO ESTÁ CHINGÓN, PERO NOE ESTÁ TOMANDO MUCHO TIMEPO. LUEGO JALA 
+ * int optParser(String inst){
+  int prev_space = 0;
+  int j = 0;
+  String opts[3];
+  int opt = 0;
+  int M1 = 0; M2 = 1; on = 0; off = 10; speed1 = 20; left = 0; right = 100; 
+  
+  for(int i=0; i <= inst.length(); i++){
+    if(inst[i] == ' ' || i == inst.length()){
+      opts[j] = inst.substring(prev_space, i);
+      prev_space = i+1;
+      j+=1;
+    }
+  }
+
+  for(int i=0; i<opts.length(); i++){
+    if(opts[i].equals("M1")){
+      sum
+    }
+  }
+}*/
 
 
 int optParser(String opt){
-  const char s[2] = " ";
-  char *token;
-  
-  token = strtok(str, s);
-   
-   while( token != NULL ) {
-      printf( " %s\n", token );
-    
-      token = strtok(NULL, s);
-   }
-}
-
-/*
-String M1_left = "M1 on left";
+  String M1_left = "M1 on left";
   String M1_right = "M1 on right";
   String M2_left = "M2 on left";
   String M2_right = "M2 on right";
   String M1_off = "M1 off";
   String M2_off = "M2 off";
-  String Speed = "Speed";
   if(M1_left.equals(opt))
     return 1;
   if(M1_right.equals(opt))
@@ -109,7 +152,37 @@ String M1_left = "M1 on left";
     return 5;
   if(M2_off.equals(opt))
     return 6;
-  else
+  if(isSpeed(opt) == 1)
+    return 7;
+  if(isSpeed(opt) == 2)
+    return 8;
+  else{
     return 0;
+  }
+}
 
-*\
+
+int isSpeed(String inst){
+  int prev_space = 0;
+  int j = 0;
+  String opts[3];
+  
+  for(int i=0; i <= inst.length(); i++){
+    if(inst[i] == ' ' || i == inst.length()){
+      opts[j] = inst.substring(prev_space, i);
+      prev_space = i+1;
+      j+=1;
+    }
+  }
+
+  if(opts[1].equals("speed")){
+    pwm = opts[2].toInt();
+    if(opts[0].equals("M1"))
+      return 1;
+    if(opts[0].equals("M2"))
+      return 2;
+  }
+
+  return 0;
+}
+
