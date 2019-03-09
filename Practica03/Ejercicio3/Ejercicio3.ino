@@ -1,9 +1,9 @@
-int Mot1 = 4;
-int Mot1_n = 2;
-int Mot2 = 12;
-int Mot2_n = 13;
-int pwmPin1 = 9;
-int pwmPin2 = 10;
+int Mot1 = 2;
+int Mot1_n = 3;
+int Mot2 = 4;
+int Mot2_n = 5;
+int pwmPin1 = 10;
+int pwmPin2 = 11;
 int pwm = 0;
 
 String opt = "";
