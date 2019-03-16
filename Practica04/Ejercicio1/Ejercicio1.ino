@@ -42,4 +42,4 @@ int contact(int num_sensor){
   else {
     Serial.println("Número de sensor no válido");
     }
-  }
+}
