@@ -29,12 +29,16 @@ float velI = 0;
 
 void setup() {
   Serial.begin(9600);
-  attachInterrupt(digitalPinToInterrupt(motD_A_pin), incDA, RISING);
+  attachInterrupt(digitalPinToInterrupt(motD_A_pin), incDA, CHANGE);
   attachInterrupt(digitalPinToInterrupt(motI_A_pin), incIA, RISING);
   pinMode(motD_A_pin, INPUT);
   pinMode(motD_B_pin, INPUT);
   pinMode(motI_A_pin, INPUT);
   pinMode(motI_B_pin, INPUT);
+  pinMode(MotI, OUTPUT);
+  pinMode(MotI_n, OUTPUT);
+  pinMode(MotD, OUTPUT);
+  pinMode(MotD_n, OUTPUT);
 
   digitalWrite(MotI, HIGH);
   digitalWrite(MotI_n, LOW);

@@ -1,3 +1,9 @@
+#include <ros.h>
+#include <std_msgs/Float32.h>
+#include <std_msgs/Bool.h>
+#include <std_msgs/Int16.h>
+#include <std_msgs/Int64.h>
+
 #define RH_ENCODER_A 3
 #define RH_ENCODER_B 12
 
@@ -76,10 +82,11 @@ void speedMotor2Callback(const std_msgs::Float32& mess){
     digitalWrite(MotI, LOW);
     digitalWrite(MotI_n, HIGH);
     analogWrite(pwmPin1, fabs(mess.data));
+  } 
 }
 
-ros::Subscribe<std_msgs::Float32> subSpeedMotor1("/speed_motor_1", speedMotor1Callback);
-ros::Subscribe<std_msgs::Float32> subSpeedMotor2("/speed_motor_2", speedMotor2Callback);
+ros::Subscriber<std_msgs::Float32> subSpeedMotor1("/speed_motor_1", speedMotor1Callback);
+ros::Subscriber<std_msgs::Float32> subSpeedMotor2("/speed_motor_2", speedMotor2Callback);
 
 void setup() {
   nh.initNode();
@@ -93,11 +100,14 @@ void setup() {
   nh.advertise(photoPub2);
   nh.advertise(photoPub3);
   nh.advertise(photoPub4);
-  nh.subscribe(subsSpeedMotor1);
-  nh.subscribe(subsSpeedMotor2);
+  nh.subscribe(subSpeedMotor1);
+  nh.subscribe(subSpeedMotor2);
   pinMode(MotI, OUTPUT);
   pinMode(MotI_n, OUTPUT);
+  pinMode(RH_ENCODER_A, INPUT);
+  pinMode(RH_ENCODER_B, INPUT);
 
+  attachInterrupt(1, rightEncoderEvent, CHANGE);
 }
 
 void loop() {
